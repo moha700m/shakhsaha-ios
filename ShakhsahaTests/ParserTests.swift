@@ -61,7 +61,8 @@ final class ParserTests: XCTestCase {
         let r = try await t.send("03")
         XCTAssertEqual(ELMParser.dtcs(r, response: 0x43), ["P0420", "P0301"])
         _ = try await t.send("04")
-        XCTAssertEqual(ELMParser.dtcs(try await t.send("03"), response: 0x43), [])
+        let r2 = try await t.send("03")
+        XCTAssertEqual(ELMParser.dtcs(r2, response: 0x43), [])
     }
     func testBundledCatalogMatchesRemoteSchema() throws {
         let d = try JSONEncoder().encode(CatalogStore.bundled)
