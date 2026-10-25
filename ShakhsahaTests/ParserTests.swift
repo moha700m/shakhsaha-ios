@@ -68,4 +68,24 @@ final class ParserTests: XCTestCase {
         let d = try JSONEncoder().encode(CatalogStore.bundled)
         XCTAssertNoThrow(try JSONDecoder().decode(RemoteCatalog.self, from: d))
     }
+
+    func testUDSModuleDTCs() {
+        XCTAssertEqual(Modules.parseUDS("5902FF04200009030100 09>"), ["P0420", "P0301"])
+        XCTAssertEqual(Modules.parseUDS("5902FF>"), [])
+        XCTAssertNil(Modules.parseUDS("NO DATA>"))
+        XCTAssertNil(Modules.parseUDS("7F1911>"))
+    }
+    func testMode06() {
+        let r = ELMParser.mode06("4621 80 0D 01 F4 00 C8 03 E8>")
+        XCTAssertEqual(r.count, 1); XCTAssertEqual(r[0].value, 500); XCTAssertTrue(r[0].pass)
+        XCTAssertFalse(ELMParser.mode06("46A3 0B 24 00 0F 00 00 00 0A>")[0].pass)
+    }
+    func testSupportedPIDs() {
+        let s = ELMParser.supported("4100BE3EB813>", base: 0)
+        XCTAssertTrue(s.contains(0x0C)); XCTAssertTrue(s.contains(0x0D)); XCTAssertTrue(s.contains(0x05))
+    }
+    func testPIDCatalog() {
+        XCTAssertEqual(PIDs.def("stft1")!.decode([0x80])!, 0, accuracy: 0.01)
+        XCTAssertEqual(PIDs.def("maf")!.decode([0x01, 0xF4])!, 5, accuracy: 0.01)
+    }
 }
