@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "updated": "2026-10-25",
  "costs": {
   "P0420": {
@@ -173,5 +173,33 @@
   "Clean the air filter after dust storms.",
   "Drive 30 minutes before inspection so readiness monitors complete; don't clear codes the day before."
  ],
- "heatLimitC": 105
+ "heatLimitC": 105,
+ "cityFactors": {
+  "riyadh": 1.0,
+  "jeddah": 1.05,
+  "dammam": 0.95,
+  "makkah": 1.05,
+  "madinah": 0.97,
+  "qassim": 0.9,
+  "abha": 0.92,
+  "tabuk": 0.93
+ },
+ "dealerFactor": 1.8,
+ "fuelPrices": {
+  "91": 2.18,
+  "95": 2.33,
+  "diesel": 1.66
+ },
+ "heatTipsAr": [
+  "لا توقف السيارة تحت الشمس والمكيف شغّال مدة طويلة.",
+  "البطارية تموت في الصيف أكثر من الشتاء، افحصها لو عمرها فوق سنتين.",
+  "لو الحرارة طلعت فوق النص طفّ المكيف وشغّل الدفاية لين توقف.",
+  "ضغط الكفرات يرتفع مع الحر، قِسه الصبح وهي باردة."
+ ],
+ "heatTipsEn": [
+  "Avoid long idling in the sun with A/C on.",
+  "Batteries die more in summer; test if older than 2 years.",
+  "If temp rises past middle, switch off A/C and turn the heater on until you stop.",
+  "Tire pressure rises in heat; check it cold in the morning."
+ ]
 }

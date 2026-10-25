@@ -1,2 +1,5 @@
 "CFBundleDisplayName" = "Shakhsaha";
 "NSBluetoothAlwaysUsageDescription" = "Bluetooth connects to the OBD2 adapter in your car to read fault codes and live data. The app is read-only and never changes anything in the car.";
+"NSCameraUsageDescription" = "The camera photographs your dashboard to read the odometer and suggest warning lights. Photos stay on your phone.";
+"NSLocationWhenInUseUsageDescription" = "Location measures speed and distance for the trip computer and 0-100 without an adapter. Never sent anywhere.";
+"NSPhotoLibraryUsageDescription" = "Pick a dashboard photo from your library. It stays on your phone.";

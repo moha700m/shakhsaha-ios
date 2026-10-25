@@ -1,3 +1,4 @@
+import Network
 import Foundation
 import CoreBluetooth
 
@@ -26,6 +27,7 @@ enum OBDError: LocalizedError {
 final class DemoTransport: OBDTransport {
     let name = "Demo ELM327 v1.5"
     var cleared = false
+    var header = "7DF"
     var t: Double = 0
     var script: [String: String]
     init(script: [String: String]? = nil) {
@@ -40,9 +42,55 @@ final class DemoTransport: OBDTransport {
     ]
     func open() async throws {}
     func close() {}
+    /// Plausible hot-climate idle/cruise values for every standard PID in demo mode.
+    static func demoValue(_ pid: String, t: Double = 0) -> String? {
+        let w = sin(t / 4)
+        switch pid {
+        case "02": return "0171"
+        case "04": return String(format: "%02X", Int(70 + 30 * w))
+        case "05": return String(format: "%02X", 96 + 40)
+        case "06": return String(format: "%02X", Int(130 + 4 * w))
+        case "07": return "8A"
+        case "08": return "7E"
+        case "09": return "84"
+        case "0B": return String(format: "%02X", Int(38 + 20 * w))
+        case "0C": return "0F80"
+        case "0D": return "3C"
+        case "0E": return String(format: "%02X", Int(150 + 6 * w))
+        case "0F": return String(format: "%02X", 52 + 40)
+        case "10": let v = Int((6 + 5 * (0.5 + 0.5 * w)) * 100); return String(format: "%02X%02X", v / 256, v % 256)
+        case "11": return String(format: "%02X", Int(40 + 25 * w))
+        case "14": return String(format: "%02X00", Int(90 + 70 * sin(t * 3)))
+        case "15": return "8CFF"
+        case "1F": let v = Int(600 + t * 4); return String(format: "%02X%02X", (v / 256) % 256, v % 256)
+        case "21": return "0000"
+        case "2F": return "99"
+        case "30": return "0C"
+        case "31": return "0F3C"
+        case "33": return "5E"
+        case "3C": let v = (620 + 40) * 10; return String(format: "%02X%02X", v / 256, v % 256)
+        case "42": return "3710"
+        case "46": return String(format: "%02X", 44 + 40)
+        case "5C": return String(format: "%02X", 104 + 40)
+        case "5E": let v = Int((1.2 + 2 * (0.5 + 0.5 * w)) * 20); return String(format: "%02X%02X", v / 256, v % 256)
+        default: return nil
+        }
+    }
     func send(_ command: String) async throws -> String {
         try await Task.sleep(nanoseconds: 60_000_000)
         let c = command.uppercased().replacingOccurrences(of: " ", with: "")
+        if c.hasPrefix("ATSH") { header = String(c.dropFirst(4)); return "OK>" }
+        if c == "ATD" { header = "7DF"; return "OK>" }
+        if c.hasPrefix("19") {
+            if cleared { return ["7E0", "7E1", "7B0"].contains(header) ? "5902FF>" : "NO DATA>" }
+            switch header {
+            case "7E0": return "5902FF04200009030100 09>"
+            case "7E1": return "5902FF>"
+            case "7B0": return "5902FF40350008>"
+            case "780": return "5902FF>"
+            default: return "NO DATA>"
+            }
+        }
         if c == "04" { cleared = true; return "44>" }
         if cleared && ["03", "07"].contains(c) { return c == "03" ? "4300>" : "4700>" }
         if cleared && c == "0101" { return "41010007E1E1>" }
@@ -59,7 +107,19 @@ final class DemoTransport: OBDTransport {
         case "0142": let v = Int((14.1 + 0.1 * sin(t)) * 1000); return String(format: "4142%02X%02X>", v / 256, v % 256)
         case "0106": return "410685>"
         case "0107": return "41078A>"
-        default: return (script[c] ?? "NO DATA") + ">"
+        case "0600": return "4600FFFF0000>"
+        case "0601": return "4601 0B 24 00 7A 00 00 00 C8>"
+        case "0621": return "4621 80 0D 01 F4 00 C8 03 E8>"
+        case "06A2": return "46A2 0B 24 00 02 00 00 00 0A>"
+        case "06A3": return "46A3 0B 24 00 0F 00 00 00 0A>"
+        default:
+            if c.count == 6, c.hasPrefix("02"), c.hasSuffix("00"), let r = DemoTransport.demoValue(String(c.dropFirst(2).prefix(2))) {
+                let p2 = String(c.dropFirst(2).prefix(2)); return "42\(p2)00\(r)>"
+            }
+            if c.count == 4, c.hasPrefix("01"), let r = DemoTransport.demoValue(String(c.suffix(2)), t: t) {
+                let p2 = String(c.suffix(2)); return "41\(p2)\(r)>"
+            }
+            return (script[c] ?? "NO DATA") + ">"
         }
     }
 }
@@ -150,5 +210,51 @@ final class BLETransport: NSObject, OBDTransport, CBCentralManagerDelegate, CBPe
         guard let d = ch.value, let s = String(data: d, encoding: .ascii) else { return }
         buffer += s
         if buffer.contains(">"), let rc = replyCont { replyCont = nil; rc.resume(returning: buffer) }
+    }
+}
+
+
+
+/// Wi-Fi ELM327 adapters (default 192.168.0.10:35000). Join the adapter's Wi-Fi network first.
+final class WiFiTransport: OBDTransport {
+    let name: String
+    private let host: String, port: UInt16
+    private var conn: NWConnection?
+    private let q = DispatchQueue(label: "obd.wifi")
+    init(host: String = "192.168.0.10", port: UInt16 = 35000) { self.host = host; self.port = port; name = "Wi-Fi \(host):\(port)" }
+
+    func open() async throws {
+        let c = NWConnection(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: port)!, using: .tcp)
+        conn = c
+        try await withCheckedThrowingContinuation { (k: CheckedContinuation<Void, Error>) in
+            var done = false
+            c.stateUpdateHandler = { st in
+                guard !done else { return }
+                switch st {
+                case .ready: done = true; k.resume()
+                case .failed, .cancelled: done = true; k.resume(throwing: OBDError.notFound)
+                default: break
+                }
+            }
+            c.start(queue: q)
+            q.asyncAfter(deadline: .now() + 8) { if !done { done = true; c.cancel(); k.resume(throwing: OBDError.notFound) } }
+        }
+    }
+    func close() { conn?.cancel(); conn = nil }
+
+    func send(_ command: String) async throws -> String {
+        guard let c = conn else { throw OBDError.disconnected }
+        c.send(content: (command + "\r").data(using: .ascii), completion: .contentProcessed { _ in })
+        var buf = ""
+        let deadline = Date().addingTimeInterval(command == "ATZ" ? 6 : 4)
+        while !buf.contains(">") && Date() < deadline {
+            let chunk: String = try await withCheckedThrowingContinuation { k in
+                c.receive(minimumIncompleteLength: 1, maximumLength: 1024) { d, _, _, err in
+                    if let err { k.resume(throwing: err) } else { k.resume(returning: d.flatMap { String(data: $0, encoding: .ascii) } ?? "") }
+                }
+            }
+            buf += chunk
+        }
+        return buf.isEmpty ? "NO DATA" : buf
     }
 }

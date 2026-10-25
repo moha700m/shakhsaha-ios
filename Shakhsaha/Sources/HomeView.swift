@@ -21,7 +21,13 @@ struct HomeView: View {
                             }.disabled(obd.scanning)
                             if obd.scanning { ProgressView(value: obd.scanProgress).tint(Theme.terra) }
                         }
+                        if obd.connected {
+                            NavigationLink { FullScanView() } label: { Label(L("الفحص الشامل لكل الأنظمة", "Full-system scan"), systemImage: "cpu").frame(maxWidth: .infinity).frame(height: 46) }
+                                .buttonStyle(.bordered).tint(Theme.terra)
+                        }
+                        if obd.isDemo { HStack { DemoBadge(); Text(L("أنت في الوضع التجريبي، النتائج مو من سيارتك", "Demo mode: results are not from your car")).font(.caption); Spacer() } }
                         if obd.lastScan != nil { resultsSection }
+                        offlineRow
                         tiles
                         if let tip = catalog.tips.first { tipCard(tip) }
                         DisclaimerBanner()
@@ -99,11 +105,27 @@ struct HomeView: View {
         }.foregroundStyle(Theme.ink)
     }
 
+    var offlineRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                chip(L("ابحث عن كود", "Look up code"), "magnifyingglass", AnyView(DTCLookupView()))
+                chip(L("صوّر طبلونك", "Snap dashboard"), "camera.viewfinder", AnyView(DashPhotoView()))
+                chip(L("مدرّب الفحص الدوري", "MVPI coach"), "checkmark.shield", AnyView(CoachView()))
+                chip(L("أسعار الورش", "Workshop prices"), "building.2", AnyView(GaragePricesView()))
+                chip(L("رحلة GPS", "GPS trip"), "location.north.line", AnyView(GPSTripView()))
+            }
+        }
+    }
+    func chip(_ t: String, _ i: String, _ v: AnyView) -> some View {
+        NavigationLink { v } label: { Label(t, systemImage: i).font(.subheadline.bold()).padding(.horizontal, 14).padding(.vertical, 10).softCard(14) }
+            .buttonStyle(.plain).foregroundStyle(Theme.ink)
+    }
+
     var tiles: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             NavigationLink { ReadinessView() } label: { Tile(img: "Engine", title: L("جاهزية الفحص الدوري", "Inspection readiness"),
                 sub: obd.readiness.map { $0.incomplete == 0 && !$0.milOn ? L("جاهزة ✓", "Ready ✓") : L("\($0.incomplete) غير مكتمل", "\($0.incomplete) incomplete") } ?? L("افحص أول", "Scan first")) }
-            Button { showReport = true } label: { Tile(img: "Report", title: L("تقرير قبل الشراء", "Pre-purchase report"), sub: L("شاركه مع البايع", "Share with seller")) }
+            NavigationLink { UsedCarReportView() } label: { Tile(img: "Report", title: L("تقرير قبل الشراء", "Pre-purchase report"), sub: L("شاركه مع البايع", "Share with seller")) }
             NavigationLink { LiveView() } label: { Tile(img: "Heat", title: L("الحرارة والبطارية", "Heat & battery"),
                 sub: obd.live.voltage > 0 ? String(format: "%.1fV", obd.live.voltage) : "—") }
             NavigationLink { MaintenanceView() } label: { Tile(img: "Maint", title: L("تذكيرات الصيانة", "Service reminders"), sub: L("زيت، بطارية، مكيف", "Oil, battery, A/C")) }

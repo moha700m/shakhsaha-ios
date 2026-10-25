@@ -17,4 +17,7 @@
 <key>ITSAppUsesNonExemptEncryption</key><false/>
 <key>UISupportedInterfaceOrientations</key><array><string>UIInterfaceOrientationPortrait</string></array>
 <key>NSBluetoothAlwaysUsageDescription</key><string>البلوتوث يتصل بقطعة OBD2 في سيارتك عشان يقرأ الأعطال والقراءات. التطبيق يقرأ فقط وما يغيّر شي في السيارة.</string>
+<key>NSCameraUsageDescription</key><string>الكاميرا تصوّر طبلون السيارة عشان نقرأ العداد ونقترح اللمبات. الصورة تبقى في جوالك.</string>
+<key>NSLocationWhenInUseUsageDescription</key><string>الموقع يحسب السرعة والمسافة لكمبيوتر الرحلة وقياس ٠-١٠٠ بدون قطعة. ما يُرسل لأي مكان.</string>
+<key>NSPhotoLibraryUsageDescription</key><string>تختار صورة الطبلون من صورك. الصورة تبقى في جوالك.</string>
 </dict></plist>

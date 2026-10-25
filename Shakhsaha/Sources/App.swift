@@ -5,6 +5,8 @@ struct ShakhsahaApp: App {
     @StateObject private var obd = OBDService()
     @StateObject private var catalog = CatalogStore()
     @StateObject private var maint = MaintenanceStore()
+    @StateObject private var cars = VehicleStore()
+    @StateObject private var gps = GPSService()
     @AppStorage("shakhsaha.lang") private var langRaw = "ar"
     @AppStorage("shakhsaha.agreed") private var agreed = false
 
@@ -13,7 +15,7 @@ struct ShakhsahaApp: App {
             Group {
                 if agreed { RootView() } else { OnboardingView(agreed: $agreed) }
             }
-            .environmentObject(obd).environmentObject(catalog).environmentObject(maint)
+            .environmentObject(obd).environmentObject(catalog).environmentObject(maint).environmentObject(cars).environmentObject(gps)
             .appLayout(AppLang(rawValue: langRaw) ?? .ar)
             .id(langRaw)
             .tint(Theme.terra)
@@ -33,7 +35,8 @@ struct RootView: View {
         ZStack {
             TabView {
                 HomeView().tabItem { Label(L("الرئيسية", "Home"), systemImage: "house.fill") }
-                LiveView().tabItem { Label(L("مباشر", "Live"), systemImage: "gauge.with.dots.needle.67percent") }
+                LiveView().tabItem { Label(L("اللوحة", "Dashboard"), systemImage: "gauge.with.dots.needle.67percent") }
+                ToolsView().tabItem { Label(L("الأدوات", "Tools"), systemImage: "square.grid.2x2.fill") }
                 MaintenanceView().tabItem { Label(L("الصيانة", "Service"), systemImage: "wrench.and.screwdriver.fill") }
                 SettingsView().tabItem { Label(L("الإعدادات", "Settings"), systemImage: "gearshape.fill") }
             }
