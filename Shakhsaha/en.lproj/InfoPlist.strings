@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "Shakhsaha";
+"NSBluetoothAlwaysUsageDescription" = "Bluetooth connects to the OBD2 adapter in your car to read fault codes and live data. The app is read-only and never changes anything in the car.";

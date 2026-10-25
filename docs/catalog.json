@@ -1,0 +1,177 @@
+{
+ "version": 2,
+ "updated": "2026-10-25",
+ "costs": {
+  "P0420": {
+   "min": 800,
+   "max": 2800
+  },
+  "P0430": {
+   "min": 800,
+   "max": 2800
+  },
+  "P0300": {
+   "min": 200,
+   "max": 900
+  },
+  "P0301": {
+   "min": 150,
+   "max": 600
+  },
+  "P0302": {
+   "min": 150,
+   "max": 600
+  },
+  "P0303": {
+   "min": 150,
+   "max": 600
+  },
+  "P0304": {
+   "min": 150,
+   "max": 600
+  },
+  "P0171": {
+   "min": 150,
+   "max": 900
+  },
+  "P0174": {
+   "min": 150,
+   "max": 900
+  },
+  "P0172": {
+   "min": 150,
+   "max": 800
+  },
+  "P0217": {
+   "min": 300,
+   "max": 1500
+  },
+  "P0128": {
+   "min": 150,
+   "max": 450
+  },
+  "P0118": {
+   "min": 80,
+   "max": 300
+  },
+  "P0101": {
+   "min": 60,
+   "max": 700
+  },
+  "P0135": {
+   "min": 250,
+   "max": 700
+  },
+  "P0141": {
+   "min": 250,
+   "max": 700
+  },
+  "P0440": {
+   "min": 30,
+   "max": 500
+  },
+  "P0442": {
+   "min": 30,
+   "max": 350
+  },
+  "P0455": {
+   "min": 30,
+   "max": 400
+  },
+  "P0456": {
+   "min": 30,
+   "max": 350
+  },
+  "P0562": {
+   "min": 250,
+   "max": 1200
+  },
+  "P0700": {
+   "min": 300,
+   "max": 5000
+  },
+  "P0730": {
+   "min": 1500,
+   "max": 7000
+  },
+  "P0016": {
+   "min": 900,
+   "max": 3500
+  },
+  "P0335": {
+   "min": 150,
+   "max": 500
+  },
+  "P0340": {
+   "min": 150,
+   "max": 500
+  },
+  "P0480": {
+   "min": 150,
+   "max": 900
+  },
+  "P0532": {
+   "min": 150,
+   "max": 500
+  },
+  "U0100": {
+   "min": 200,
+   "max": 1500
+  }
+ },
+ "systemCosts": {
+  "emissions": {
+   "min": 200,
+   "max": 1500
+  },
+  "ignition": {
+   "min": 150,
+   "max": 700
+  },
+  "fuel": {
+   "min": 150,
+   "max": 1200
+  },
+  "cooling": {
+   "min": 150,
+   "max": 1500
+  },
+  "electrical": {
+   "min": 150,
+   "max": 1200
+  },
+  "transmission": {
+   "min": 400,
+   "max": 6000
+  },
+  "engine": {
+   "min": 300,
+   "max": 3500
+  },
+  "network": {
+   "min": 200,
+   "max": 1500
+  },
+  "chassis": {
+   "min": 200,
+   "max": 1200
+  },
+  "body": {
+   "min": 150,
+   "max": 1500
+  }
+ },
+ "tipsAr": [
+  "في الصيف افحص البطارية كل ٣ شهور، الحر يقصّر عمرها.",
+  "لا تفتح غطا الرديتر والمكينة حارة.",
+  "نظّف فلتر الهوا بعد كل موجة غبار.",
+  "قبل الفحص الدوري امشِ ٣٠ دقيقة عشان تكتمل الجاهزية، ولا تمسح الأكواد قبلها بيوم."
+ ],
+ "tipsEn": [
+  "Check your battery every 3 months in summer.",
+  "Never open the radiator cap while hot.",
+  "Clean the air filter after dust storms.",
+  "Drive 30 minutes before inspection so readiness monitors complete; don't clear codes the day before."
+ ],
+ "heatLimitC": 105
+}
